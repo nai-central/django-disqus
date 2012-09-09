@@ -118,9 +118,11 @@ def disqus_show_comments(context, shortname=''):
     Return the HTML code to display DISQUS comments.
     """
     shortname = getattr(settings, 'DISQUS_WEBSITE_SHORTNAME', shortname)
+    force_https = getattr(settings, 'DISQUS_FORCE_HTTPS', False)
     return {
         'shortname': shortname,
         'config': get_config(context),
+        'force_https': force_https
     }
 
 register.tag('set_disqus_developer', set_disqus_developer)
