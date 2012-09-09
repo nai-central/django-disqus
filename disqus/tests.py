@@ -25,4 +25,3 @@ When a DISQUS API method is called, the call method should be used.
 <function call_method at ...>
 """,
 }
-

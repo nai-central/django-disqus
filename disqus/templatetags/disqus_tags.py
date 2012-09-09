@@ -6,11 +6,12 @@ from django.utils.encoding import force_unicode
 
 register = template.Library()
 
+
 class ContextSetterNode(template.Node):
     def __init__(self, var_name, var_value):
         self.var_name = var_name
         self.var_value = var_value
-    
+
     def _get_value(self, value, context):
         """
         Attempts to resolve the value as a variable. Failing that, it returns
@@ -21,7 +22,7 @@ class ContextSetterNode(template.Node):
         except template.VariableDoesNotExist:
             var_value = self.var_value.var
         return var_value
-    
+
     def render(self, context):
         if isinstance(self.var_value, (list, tuple)):
             var_value = ''.join([force_unicode(self._get_value(x, context)) for x in self.var_value])
@@ -30,10 +31,11 @@ class ContextSetterNode(template.Node):
         context[self.var_name] = var_value
         return ''
 
+
 def generic_setter_compiler(var_name, name, node_class, parser, token):
     """
     Returns a ContextSetterNode.
-    
+
     For calls like {% set_this_value "My Value" %}
     """
     bits = token.split_contents()
@@ -54,17 +56,19 @@ set_disqus_url = curry(generic_setter_compiler, 'disqus_url', 'set_disqus_url', 
 # Set the disqus_title variable to some value. Defaults to page's title or URL
 set_disqus_title = curry(generic_setter_compiler, 'disqus_title', 'set_disqus_title', ContextSetterNode)
 
+
 def get_config(context):
     """
     return the formatted javascript for any disqus config variables
     """
     conf_vars = ['disqus_developer', 'disqus_identifier', 'disqus_url', 'disqus_title']
-    
+
     output = []
     for item in conf_vars:
         if item in context:
             output.append('\tvar %s = "%s";' % (item, context[item]))
     return '\n'.join(output)
+
 
 def disqus_dev():
     """
@@ -78,17 +82,19 @@ def disqus_dev():
 </script>""" % Site.objects.get_current().domain
     return ""
 
+
 def disqus_num_replies(context, shortname=''):
     """
     Return the HTML/js code which transforms links that end with an
     #disqus_thread anchor into the threads comment count.
     """
     shortname = getattr(settings, 'DISQUS_WEBSITE_SHORTNAME', shortname)
-    
+
     return {
         'shortname': shortname,
         'config': get_config(context),
     }
+
 
 def disqus_recent_comments(context, shortname='', num_items=5, excerpt_length=200, hide_avatars=0, avatar_size=32):
     """
@@ -96,7 +102,7 @@ def disqus_recent_comments(context, shortname='', num_items=5, excerpt_length=20
 
     """
     shortname = getattr(settings, 'DISQUS_WEBSITE_SHORTNAME', shortname)
-    
+
     return {
         'shortname': shortname,
         'num_items': num_items,
@@ -105,6 +111,7 @@ def disqus_recent_comments(context, shortname='', num_items=5, excerpt_length=20
         'excerpt_length': excerpt_length,
         'config': get_config(context),
     }
+
 
 def disqus_show_comments(context, shortname=''):
     """

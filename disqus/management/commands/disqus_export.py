@@ -4,8 +4,7 @@ import os.path
 from django.conf import settings
 from django.contrib import comments
 from django.contrib.sites.models import Site
-from django.core.management.base import NoArgsCommand
-from django.utils import simplejson as json
+from django.core.management.base import NoArgsCommand, CommandError
 
 from disqus.api import DisqusClient
 
@@ -25,7 +24,7 @@ class Command(NoArgsCommand):
     def _get_comments_to_export(self, last_export_id=None):
         """Return comments which should be exported."""
         qs = comments.get_model().objects.order_by('pk')\
-                .filter(is_public=True, is_removed=False)
+            .filter(is_public=True, is_removed=False)
         if last_export_id is not None:
             print "Resuming after comment %s" % str(last_export_id)
             qs = qs.filter(id__gt=last_export_id)
@@ -74,12 +73,12 @@ class Command(NoArgsCommand):
         if not comments_count:
             return
 
-        # Get a list of all forums for an API key. Each API key can have 
-        # multiple forums associated. This application only supports the one 
+        # Get a list of all forums for an API key. Each API key can have
+        # multiple forums associated. This application only supports the one
         # set in the DISQUS_WEBSITE_SHORTNAME variable
         forum_list = client.get_forum_list(user_api_key=settings.DISQUS_API_KEY)
         try:
-            forum = [f for f in forum_list\
+            forum = [f for f in forum_list
                      if f['shortname'] == settings.DISQUS_WEBSITE_SHORTNAME][0]
         except IndexError:
             raise CommandError("Could not find forum. " +
@@ -104,7 +103,7 @@ class Command(NoArgsCommand):
                 forum_api_key=forum_api_key)
 
             # if no thread with the URL could be found, we create a new one.
-            # to do this, we first need to create the thread and then 
+            # to do this, we first need to create the thread and then
             # update the thread with a URL.
             if not thread:
                 thread = client.thread_by_identifier(
