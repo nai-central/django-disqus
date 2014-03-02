@@ -2,7 +2,7 @@ import urllib
 import urllib2
 
 from django.core.management.base import CommandError
-from django.utils import simplejson as json
+import json
 
 
 def call(method, data, post=False):
